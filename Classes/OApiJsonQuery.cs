@@ -105,18 +105,14 @@ namespace K2host.Web.Classes
         /// <summary>
         /// Creates the instance of the query object
         /// </summary>
-        public OApiJsonQuery(string apiCommandPrefix, string globalApplicationKey)
+        public OApiJsonQuery(string apiCommandPrefix, string apiCommandDelimitor, string globalApplicationKey)
         {
             ApiCommandPrefix        = apiCommandPrefix;
             GlobalApplicationKey    = globalApplicationKey;
             Data                    = new Dictionary<string, string>();
             JsonObjects             = new Dictionary<string, JContainer>();
             AllUsers                = new Dictionary<long, IErpUser>();
-            CommandParser           = new OCommandParser()
-            {
-                CommandDelimitors       = new char[] { ';' },
-                SubCommandDelimitors    = new char[] { '.', ' ' }
-            };
+            CommandParser           = new OCommandParser() { CommandDelimitor = apiCommandDelimitor };
         }
 
         /// <summary>
@@ -568,7 +564,7 @@ namespace K2host.Web.Classes
         /// <param name="httpHeaders">Optional can be null.</param>
         /// <param name="commandStack"></param>
         /// <returns></returns>
-        public static OApiJsonQuery Build<T, I>(string jsonString, string apiCommandPrefix, string globalApplicationKey, Dictionary<string, string> httpHeaders, Dictionary<long, IErpUser> erpUsers, string connectionString) where T : IErpUserRolePolicy where I : IErpUserRole
+        public static OApiJsonQuery Build<T, I>(string jsonString, string apiCommandPrefix, string apiCommandDelimiter, string globalApplicationKey, Dictionary<string, string> httpHeaders, Dictionary<long, IErpUser> erpUsers, string connectionString) where T : IErpUserRolePolicy where I : IErpUserRole
         {
             OApiJsonQuery jsonQuery = null;
 
@@ -636,7 +632,8 @@ namespace K2host.Web.Classes
                         JsonConvert.SerializeObject(
                             OQueryStringHelper.QueryStringToDict(jsonString)
                         ),
-                        apiCommandPrefix, 
+                        apiCommandPrefix,
+                        apiCommandDelimiter,
                         globalApplicationKey, 
                         httpHeaders, 
                         erpUsers,
@@ -668,8 +665,8 @@ namespace K2host.Web.Classes
             jsonQuery.CommandStack = jsonQuery.CommandParser
                 .Parse(jsonQuery.Command)
                 .GetStack(apiCommandPrefix);
-            
-            if (jsonQuery.CommandStack[0] != apiCommandPrefix)
+
+            if (jsonQuery.CommandStack == null || jsonQuery.CommandStack[0] != apiCommandPrefix)
                 throw new Exception("Invalid command for this service api.");
          
             jsonQuery.GetUsersRoles<I>(out _);
@@ -687,14 +684,14 @@ namespace K2host.Web.Classes
         /// <param name="httpHeaders">Optional can be null.</param>
         /// <param name="commandStack"></param>
         /// <returns></returns>
-        public static OApiJsonQuery Build<T, I>(JObject json, string apiCommandPrefix, string globalApplicationKey, Dictionary<string, string> httpHeaders, Dictionary<long, IErpUser> erpUsers, string connectionString) where T : IErpUserRolePolicy where I : IErpUserRole
+        public static OApiJsonQuery Build<T, I>(JObject json, string apiCommandPrefix, string apiCommandDelimiter, string globalApplicationKey, Dictionary<string, string> httpHeaders, Dictionary<long, IErpUser> erpUsers, string connectionString) where T : IErpUserRolePolicy where I : IErpUserRole
         {
             OApiJsonQuery jsonQuery = null;
 
             try
             {
 
-                jsonQuery = new OApiJsonQuery(apiCommandPrefix, globalApplicationKey)
+                jsonQuery = new OApiJsonQuery(apiCommandPrefix, apiCommandDelimiter, globalApplicationKey)
                 {
                     Command = json.Properties().Where(x => x.Name == "Command").First().Value.ToString(),
                 };
@@ -732,10 +729,12 @@ namespace K2host.Web.Classes
             }
             catch
             {
-                return Build<T, I>(JsonConvert.SerializeObject(json), apiCommandPrefix, globalApplicationKey, httpHeaders, erpUsers, connectionString);
+                return Build<T, I>(JsonConvert.SerializeObject(json), apiCommandPrefix, apiCommandDelimiter, globalApplicationKey, httpHeaders, erpUsers, connectionString);
             }
 
-            if (jsonQuery.CommandStack[0] != apiCommandPrefix)
+
+
+            if (jsonQuery.CommandStack == null || jsonQuery.CommandStack[0] != apiCommandPrefix)
                 throw new Exception("Invalid command for this service api.");
 
             return jsonQuery;
@@ -749,14 +748,14 @@ namespace K2host.Web.Classes
         /// <param name="globalApplicationKey"></param>
         /// <param name="httpHeaders">Optional can be null.</param>
         /// <returns></returns>
-        public static OApiJsonQuery Build<T, I>(string apiCommandPrefix, string globalApplicationKey, Dictionary<string, string> httpHeaders, Dictionary<long, IErpUser> erpUsers) where T : IErpUserRolePolicy where I : IErpUserRole
+        public static OApiJsonQuery Build<T, I>(string apiCommandPrefix, string apiCommandDelimiter, string globalApplicationKey, Dictionary<string, string> httpHeaders, Dictionary<long, IErpUser> erpUsers) where T : IErpUserRolePolicy where I : IErpUserRole
         {
             OApiJsonQuery jsonQuery = null;
 
             try
             {
 
-                jsonQuery = new OApiJsonQuery(apiCommandPrefix, globalApplicationKey) { Command = apiCommandPrefix + ".null" };
+                jsonQuery = new OApiJsonQuery(apiCommandPrefix, apiCommandDelimiter, globalApplicationKey) { Command = apiCommandPrefix + ".null" };
 
                 if (httpHeaders != null)
                     jsonQuery.Data = jsonQuery.Data
@@ -779,7 +778,7 @@ namespace K2host.Web.Classes
                 throw new Exception(ex.Message);
             }
 
-            if (jsonQuery.CommandStack[0] != apiCommandPrefix)
+            if (jsonQuery.CommandStack == null || jsonQuery.CommandStack[0] != apiCommandPrefix)
                 throw new Exception("Invalid command for this service api.");
 
             return jsonQuery;
