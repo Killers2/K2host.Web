@@ -28,7 +28,7 @@ namespace K2host.Web
         public static T ToRole<T>(this Claim e) where T : IErpUserRole 
         {
 
-            IErpUserRole role = (IErpUserRole)Activator.CreateInstance(typeof(T), string.Empty);
+            T role = Activator.CreateInstance<T>();
             
             role.RoleName       = e.Type;
             role.RoleValue      = e.Value.Substring(0, e.Value.IndexOf(","));
@@ -37,7 +37,7 @@ namespace K2host.Web
             role.RoleClaim      = e;
             role.RolePolicies   = gl.SplitLong(e.Value.Remove(0, e.Value.IndexOf(",") + 1), ',');
 
-            return (T)role;
+            return role;
 
         }
 
