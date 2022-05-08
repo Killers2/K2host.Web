@@ -7,11 +7,12 @@
 */
 using System;
 using Newtonsoft.Json.Linq;
+using K2host.Web.Interface;
 
 namespace K2host.Web.Classes
 {
    
-    public class OApiJsonQueryResponsePaging
+    public class OApiJsonQueryResponsePaging : IApiJsonQueryResponse
     {
 
         /// <summary>
@@ -44,6 +45,29 @@ namespace K2host.Web.Classes
             RecordsFiltered     = 0;
             Data                = null;
         }
+       
+        #region Deconstuctor
+
+        private bool IsDisposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!IsDisposed)
+                if (disposing)
+                {
+
+
+                }
+            IsDisposed = true;
+        }
+
+        #endregion
 
     }
 

@@ -5,37 +5,32 @@
 '| Use: General                                         |
 ' \====================================================/
 */
-using Newtonsoft.Json.Linq;
 using System;
+
+using Newtonsoft.Json.Linq;
 
 namespace K2host.Web.Classes
 {
    
-
-    public class OApiJsonQueryResponse
+    public class OApiQueryOrder
     {
 
         /// <summary>
-        /// Used to store the string error message if required.
+        /// The index of the column.
         /// </summary>
-        public string Message { get; set; }
-
+        public int Column { get; set; }
+       
         /// <summary>
-        /// Used to store the string error message if required.
+        /// The order direction.
         /// </summary>
-        public DateTime DateStamp { get; set; }
-
-        /// <summary>
-        /// Used to store the responce Json to serialize.
-        /// </summary>
-        public JContainer Data { get; set; }
+        public string Dir { get; set; }
 
         /// <summary>
         /// Creates the instance of the OApiJsonQueryResonse
         /// </summary>
-        public OApiJsonQueryResponse()
+        public OApiQueryOrder()
         {
-            Message = string.Empty;
+
         }
 
     }

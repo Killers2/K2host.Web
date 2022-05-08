@@ -474,7 +474,7 @@ namespace K2host.Web.Classes
 
             ODataFieldSet[] fields = iDataObject.GetFieldSets(ODataFieldSetType.SELECT);
             
-            //If selected fields option is in the query we remove the unwanted ones. thgis one take presedence
+            //If selected fields option is in the query we remove the unwanted ones. this one take presedence
             if (Data.ContainsKey("fields"))
             {
                 if (JArray.Parse(Data["fields"]).Children().Any()) { 
